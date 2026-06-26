@@ -132,7 +132,7 @@
             <!-- المواد البديلة -->
             <div>
                 <label for="subjects" class="block text-sm font-bold text-gray-700 mb-2">المادة او المواد التي سيتم
-                    أخذها كبديل <span class="text-red-500">*</span></label>
+                    أخذها كبديل أو اختر تجميد <span class="text-red-500">*</span></label>
                 <select id="subjects" name="subjects" required
                     class="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white">
                     <option value="" disabled selected>اختر المواد...</option>
@@ -140,6 +140,7 @@
                     <option value="جميع مواد الفصل الثاني">جميع مواد الفصل الثاني</option>
                     <option value="مواد الفصلين معا">مواد الفصلين معا</option>
                     <option value="مادة او اكثر">مادة او أكثر</option>
+                    <option value="تجميد">تجميد</option>
                 </select>
             </div>
 
@@ -172,13 +173,30 @@
                     class="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
             </div>
 
+            <!-- تنويه التجميد (تظهر وتصبح إجبارية فقط عند اختيار "تجميد") -->
+            <div id="freezeSection" class="hidden bg-blue-50 p-5 rounded-md border border-blue-100">
+                <div class="flex items-start">
+                    <svg class="h-6 w-6 text-blue-600 mt-0.5 ml-2 flex-shrink-0" xmlns="http://www.w3.org/2000/svg"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="text-sm text-blue-800 font-medium leading-relaxed">
+                        <span class="font-bold text-blue-900">تنويه:</span> لقد اخترت (تجميد). يرجى إرفاق مستند تسديد
+                        الرسوم في حقل المرفقات أدناه كشرط إجباري لإتمام الطلب.
+                    </p>
+                </div>
+            </div>
+
             <!-- حقل المرفقات -->
             <div class="bg-white p-5 rounded-md border border-gray-200 shadow-sm">
-                <label for="fileUpload" class="block text-sm font-bold text-gray-700 mb-2">إرفاق عذر طبي أو مستندات
+                <label id="fileUploadLabel" for="fileUpload" class="block text-sm font-bold text-gray-700 mb-2">إرفاق
+                    عذر طبي أو مستندات
                     (إجباري) <span class="text-red-500">*</span></label>
                 <input type="file" id="fileUpload" name="fileUpload" accept="image/*,.pdf,.doc,.docx" required
                     class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 cursor-pointer">
-                <p class="text-xs text-gray-500 mt-2">يمكنك إرفاق ملف (صورة، PDF، أو مستند) ليتم حفظه تلقائياً في Google
+                <p id="fileUploadHelp" class="text-xs text-gray-500 mt-2">يمكنك إرفاق ملف (صورة، PDF، أو مستند) ليتم
+                    حفظه تلقائياً في Google
                     Drive.</p>
             </div>
 
@@ -262,6 +280,9 @@
         const specificSubjectsInput = document.getElementById('specificSubjectsInput');
         const notesSection = document.getElementById('notesSection');
         const notesInput = document.getElementById('notes');
+        const freezeSection = document.getElementById('freezeSection');
+        const fileUploadLabel = document.getElementById('fileUploadLabel');
+        const fileUploadHelp = document.getElementById('fileUploadHelp');
         const submitBtn = document.getElementById('submitBtn');
         const btnText = document.getElementById('btnText');
         const btnLoader = document.getElementById('btnLoader');
@@ -287,6 +308,17 @@
                 specificSubjectsSection.classList.add('hidden');
                 specificSubjectsInput.removeAttribute('required');
                 specificSubjectsInput.value = '';
+            }
+
+            // معالجة اختيار تجميد
+            if (this.value === 'تجميد') {
+                freezeSection.classList.remove('hidden');
+                fileUploadLabel.innerHTML = 'إرفاق مستند تسديد الرسوم (إجباري) <span class="text-red-500">*</span>';
+                fileUploadHelp.textContent = 'يرجى إرفاق ملف مستند تسديد الرسوم (صورة، PDF، أو مستند) ليتم حفظه تلقائياً في Google Drive.';
+            } else {
+                freezeSection.classList.add('hidden');
+                fileUploadLabel.innerHTML = 'إرفاق عذر طبي أو مستندات (إجباري) <span class="text-red-500">*</span>';
+                fileUploadHelp.textContent = 'يمكنك إرفاق ملف (صورة، PDF، أو مستند) ليتم حفظه تلقائياً في Google Drive.';
             }
         });
 
@@ -358,6 +390,9 @@
                     form.reset();
                     notesSection.classList.add('hidden');
                     if (specificSubjectsSection) specificSubjectsSection.classList.add('hidden');
+                    freezeSection.classList.add('hidden');
+                    fileUploadLabel.innerHTML = 'إرفاق عذر طبي أو مستندات (إجباري) <span class="text-red-500">*</span>';
+                    fileUploadHelp.textContent = 'يمكنك إرفاق ملف (صورة، PDF، أو مستند) ليتم حفظه تلقائياً في Google Drive.';
                     resetButton();
                 }, 2000);
                 return;
@@ -378,6 +413,9 @@
                         form.reset();
                         notesSection.classList.add('hidden');
                         if (specificSubjectsSection) specificSubjectsSection.classList.add('hidden');
+                        freezeSection.classList.add('hidden');
+                        fileUploadLabel.innerHTML = 'إرفاق عذر طبي أو مستندات (إجباري) <span class="text-red-500">*</span>';
+                        fileUploadHelp.textContent = 'يمكنك إرفاق ملف (صورة، PDF، أو مستند) ليتم حفظه تلقائياً في Google Drive.';
                     } else {
                         showAlert('حدث خطأ أثناء الإرسال: ' + (data.error || ''), 'error');
                     }

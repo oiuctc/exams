@@ -4,28 +4,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نموذج تقديم طلب الامتحان البديل أو التجميد</title>
+    <title>بوابة الخدمات الطلابية - كلية علوم الحاسوب وتقانة المعلومات</title>
     <!-- استيراد خطوط جوجل (Tajawal) لدعم اللغة العربية بشكل جميل -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <!-- استيراد Tailwind CSS للتصميم -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- استيراد Chart.js للرسوم البيانية -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: 'Tajawal', sans-serif;
-            background-color: #f3f4f6;
+            background-color: #f8fafc;
         }
 
-        /* تأثيرات التحميل للزر */
+        /* تأثيرات التحميل */
         .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #ffffff;
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #3b82f6;
             border-radius: 50%;
             width: 20px;
             height: 20px;
             animation: spin 1s linear infinite;
-            display: none;
         }
 
         @keyframes spin {
@@ -37,243 +38,629 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* تخصيص مظهر التمرير للجدول */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
     </style>
 </head>
 
-<body class="min-h-screen flex items-center justify-center py-10 px-4 sm:px-6 lg:px-8">
+<body class="min-h-screen flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8">
 
-    <div class="max-w-2xl w-full bg-white rounded-xl shadow-lg p-8">
+    <!-- شريط التنقل العلوي -->
+    <header
+        class="w-full max-w-7xl bg-white rounded-2xl shadow-sm border border-slate-100 p-4 mb-8 transition-all duration-300">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="flex-shrink-0 bg-blue-50 p-2 rounded-xl">
+                    <img src="fcsitlogo.png" alt="شعار الكلية" class="h-16 w-auto object-contain"
+                        onerror="this.src='https://placehold.co/100x100?text=FCSIT'">
+                </div>
+                <div class="text-right">
+                    <h1 class="text-xl sm:text-2xl font-bold text-slate-800">كلية علوم الحاسوب وتقانة المعلومات</h1>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">بوابة الطلاب - طلبات الامتحان البديل والتجميد
+                    </p>
+                </div>
+            </div>
 
-        <!-- الترويسة -->
-        <div class="flex items-center border-b pb-6 mb-6 gap-4">
-            <div class="flex-shrink-0">
-                <img src="fcsitlogo.png" alt="شعار الكلية" class="h-20 w-auto object-contain">
-            </div>
-            <div class="text-right">
-                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">نموذج تقديم طلب الامتحان البديل أو التجميد</h1>
-                <p class="text-sm text-gray-500 mt-2">يرجى تعبئة كافة البيانات المطلوبة لتقديم الطلب.</p>
-            </div>
+            <!-- أزرار التنقل الأيقونية -->
+            <nav class="flex border border-slate-200 rounded-xl p-1 bg-slate-50 self-start md:self-auto shadow-inner">
+                <button id="navFormBtn"
+                    class="flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 bg-white text-blue-600 shadow-sm border border-slate-100">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    تقديم طلب جديد
+                </button>
+                <button id="navDashboardBtn"
+                    class="flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-800">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    لوحة التحكم والتحليلات
+                </button>
+            </nav>
         </div>
+    </header>
 
-        <!-- رسائل النجاح أو الخطأ -->
-        <div id="alertBox" class="hidden mb-6 p-4 rounded-md"></div>
+    <!-- منطقة المحتوى الرئيسي -->
+    <main class="w-full max-w-7xl flex-grow flex flex-col items-center">
 
-        <!-- نموذج الاستبيان -->
-        <form id="examForm" class="space-y-6">
+        <!-- القسم الأول: نموذج تقديم الطلبات -->
+        <section id="formView"
+            class="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8 border border-gray-100 transition-all duration-300">
+            <!-- الترويسة الداخلية للنموذج -->
+            <div class="border-b pb-4 mb-6">
+                <h2 class="text-xl font-bold text-slate-800">تعبئة بيانات الطلب</h2>
+                <p class="text-xs text-slate-500 mt-1">يرجى إدخال معلوماتك بدقة وإرفاق المستندات المطلوبة.</p>
+            </div>
 
-            <!-- حقل الاسم ونوع المتقدم -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="md:col-span-2">
-                    <label for="studentName" class="block text-sm font-bold text-gray-700 mb-2">الاسم الرباعي <span
-                            class="text-red-500">*</span></label>
-                    <input type="text" id="studentName" name="studentName" required placeholder="أدخل اسمك الكامل"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <!-- رسائل النجاح أو الخطأ -->
+            <div id="alertBox" class="hidden mb-6 p-4 rounded-xl text-sm font-medium"></div>
+
+            <!-- نموذج الاستبيان -->
+            <form id="examForm" class="space-y-6">
+                <!-- حقل الاسم ونوع المتقدم -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="md:col-span-2">
+                        <label for="studentName" class="block text-sm font-bold text-slate-700 mb-2">الاسم الرباعي <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" id="studentName" name="studentName" required
+                            placeholder="أدخل اسمك الكامل كما هو في السجل الجامعي"
+                            class="w-full px-4 py-3 border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                    </div>
+                    <div>
+                        <label for="gender" class="block text-sm font-bold text-slate-700 mb-2">نوع المتقدم <span
+                                class="text-red-500">*</span></label>
+                        <select id="gender" name="gender" required
+                            class="w-full px-4 py-3 border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-all duration-200">
+                            <option value="" disabled selected>اختر النوع...</option>
+                            <option value="طالب">طالب</option>
+                            <option value="طالبة">طالبة</option>
+                        </select>
+                    </div>
                 </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- حقل الرقم الجامعي -->
+                    <div>
+                        <label for="universityId" class="block text-sm font-bold text-slate-700 mb-2">الرقم الجامعي
+                            <span class="text-red-500">*</span></label>
+                        <input type="text" id="universityId" name="universityId" required placeholder="مثال: 44100000"
+                            class="w-full px-4 py-3 border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                    </div>
+
+                    <!-- حقل الرقم الوطني -->
+                    <div>
+                        <label for="nationalId" class="block text-sm font-bold text-slate-700 mb-2">الرقم الوطني <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" id="nationalId" name="nationalId" required
+                            placeholder="أدخل رقمك الوطني المكون من 11 رقماً"
+                            class="w-full px-4 py-3 border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- حقل القسم -->
+                    <div>
+                        <label for="department" class="block text-sm font-bold text-slate-700 mb-2">القسم <span
+                                class="text-red-500">*</span></label>
+                        <select id="department" name="department" required
+                            class="w-full px-4 py-3 border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-all duration-200">
+                            <option value="" disabled selected>اختر القسم...</option>
+                            <option value="علوم الحاسوب">علوم الحاسوب</option>
+                            <option value="نظم المعلومات">نظم المعلومات</option>
+                            <option value="تقانة المعلومات">تقانة المعلومات</option>
+                        </select>
+                    </div>
+
+                    <!-- حقل الفرقة -->
+                    <div>
+                        <label for="level" class="block text-sm font-bold text-slate-700 mb-2">الفرقة <span
+                                class="text-red-500">*</span></label>
+                        <select id="level" name="level" required
+                            class="w-full px-4 py-3 border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-all duration-200">
+                            <option value="" disabled selected>اختر الفرقة...</option>
+                            <option value="الأولى">الأولى</option>
+                            <option value="الثانية">الثانية</option>
+                            <option value="الثالثة">الثالثة</option>
+                            <option value="الرابعة">الرابعة</option>
+                            <option value="الخامسة">الخامسة</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- المواد البديلة -->
                 <div>
-                    <label for="gender" class="block text-sm font-bold text-gray-700 mb-2">نوع المتقدم <span
+                    <label for="subjects" class="block text-sm font-bold text-slate-700 mb-2">نوع الطلب / المادة <span
                             class="text-red-500">*</span></label>
-                    <select id="gender" name="gender" required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white">
-                        <option value="" disabled selected>اختر النوع...</option>
-                        <option value="طالب">طالب</option>
-                        <option value="طالبة">طالبة</option>
+                    <select id="subjects" name="subjects" required
+                        class="w-full px-4 py-3 border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-all duration-200">
+                        <option value="" disabled selected>اختر الإجراء المطلوب...</option>
+                        <option value="جميع مواد الفصل الاول">جميع مواد الفصل الاول كبديل</option>
+                        <option value="جميع مواد الفصل الثاني">جميع مواد الفصل الثاني كبديل</option>
+                        <option value="مواد الفصلين معا">مواد الفصلين معا كبديل</option>
+                        <option value="مادة او اكثر">مادة او أكثر (تحديد مخصص)</option>
+                        <option value="تجميد">تجميد قيد دراسي</option>
                     </select>
                 </div>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- حقل الرقم الجامعي -->
-                <div>
-                    <label for="universityId" class="block text-sm font-bold text-gray-700 mb-2">الرقم الجامعي <span
-                            class="text-red-500">*</span></label>
-                    <input type="text" id="universityId" name="universityId" required placeholder="مثال: 44100000"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <!-- حقل اسم المادة (يظهر فقط عند اختيار مادة او اكثر) -->
+                <div id="specificSubjectsSection" class="hidden transition-all duration-300">
+                    <label for="specificSubjectsInput" class="block text-sm font-bold text-slate-700 mb-2">أسماء المواد
+                        بالتفصيل <span class="text-red-500">*</span></label>
+                    <input type="text" id="specificSubjectsInput" name="specificSubjectsInput"
+                        placeholder="مثال: ذكاء اصطناعي، قواعد بيانات 2"
+                        class="w-full px-4 py-3 border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
                 </div>
 
-                <!-- حقل الرقم الوطني -->
-                <div>
-                    <label for="nationalId" class="block text-sm font-bold text-gray-700 mb-2">الرقم الوطني <span
-                            class="text-red-500">*</span></label>
-                    <input type="text" id="nationalId" name="nationalId" required placeholder="أدخل رقمك الوطني"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-            </div>
+                <!-- التنويه والمستندات (تظهر وتصبح إجبارية فقط عند اختيار "مواد الفصلين معا") -->
+                <div id="notesSection"
+                    class="hidden bg-blue-50 p-5 rounded-xl border border-blue-100 transition-all duration-300">
+                    <div class="flex items-start mb-4">
+                        <svg class="h-6 w-6 text-blue-600 ml-2 flex-shrink-0" xmlns="http://www.w3.org/2000/svg"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-xs sm:text-sm text-blue-800 font-medium leading-relaxed">
+                            <span class="font-bold text-blue-900">تنويه هام:</span> لقد اخترت (مواد الفصلين معاً). يرجى
+                            تقديم تبرير تفصيلي للحالة في الحقل أدناه وإرفاق الوثائق الداعمة.
+                        </p>
+                    </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- حقل القسم -->
-                <div>
-                    <label for="department" class="block text-sm font-bold text-gray-700 mb-2">القسم <span
-                            class="text-red-500">*</span></label>
-                    <select id="department" name="department" required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white">
-                        <option value="" disabled selected>اختر القسم...</option>
-                        <option value="علوم الحاسوب">علوم الحاسوب</option>
-                        <option value="نظم المعلومات">نظم المعلومات</option>
-                        <option value="تقانة المعلومات">تقانة المعلومات</option>
-                    </select>
+                    <label for="notes" class="block text-sm font-bold text-slate-700 mb-2">ملاحظات ووصف الحالة المرضية
+                        أو العذر <span class="text-red-500">*</span></label>
+                    <textarea id="notes" name="notes" rows="4" placeholder="اكتب تفاصيل طلبك وعذرك هنا..."
+                        class="w-full px-4 py-3 border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"></textarea>
                 </div>
 
-                <!-- حقل الفرقة -->
-                <div>
-                    <label for="level" class="block text-sm font-bold text-gray-700 mb-2">الفرقة <span
-                            class="text-red-500">*</span></label>
-                    <select id="level" name="level" required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white">
-                        <option value="" disabled selected>اختر الفرقة...</option>
-                        <option value="الأولى">الأولى</option>
-                        <option value="الثانية">الثانية</option>
-                        <option value="الثالثة">الثالثة</option>
-                        <option value="الرابعة">الرابعة</option>
-                        <option value="الخامسة">الخامسة</option>
-                    </select>
+                <!-- تنويه التجميد (تظهر وتصبح إجبارية فقط عند اختيار "تجميد") -->
+                <div id="freezeSection"
+                    class="hidden bg-amber-50 p-5 rounded-xl border border-amber-100 transition-all duration-300">
+                    <div class="flex items-start">
+                        <svg class="h-6 w-6 text-amber-600 ml-2 flex-shrink-0" xmlns="http://www.w3.org/2000/svg"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <p class="text-xs sm:text-sm text-amber-800 font-medium leading-relaxed">
+                            <span class="font-bold text-amber-900">متطلب إلزامي:</span> لقد اخترت (تجميد القيد). يجب
+                            عليك إرفاق مستند رسمي يثبت تسديد الرسوم الدراسية كشرط لقبول الطلب.
+                        </p>
+                    </div>
                 </div>
-            </div>
 
-            <!-- المواد البديلة -->
-            <div>
-                <label for="subjects" class="block text-sm font-bold text-gray-700 mb-2">المادة او المواد التي سيتم
-                    أخذها كبديل أو اختر تجميد <span class="text-red-500">*</span></label>
-                <select id="subjects" name="subjects" required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white">
-                    <option value="" disabled selected>اختر المواد...</option>
-                    <option value="جميع مواد الفصل الاول">جميع مواد الفصل الاول</option>
-                    <option value="جميع مواد الفصل الثاني">جميع مواد الفصل الثاني</option>
-                    <option value="مواد الفصلين معا">مواد الفصلين معا</option>
-                    <option value="مادة او اكثر">مادة او أكثر</option>
-                    <option value="تجميد">تجميد</option>
-                </select>
-            </div>
+                <!-- حقل المرفقات -->
+                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                    <label id="fileUploadLabel" for="fileUpload"
+                        class="block text-sm font-bold text-slate-700 mb-2">إرفاق المستند الداعم أو العذر الطبي <span
+                            class="text-red-500">*</span></label>
+                    <div
+                        class="relative mt-2 flex items-center justify-center border-2 border-dashed border-slate-300 rounded-xl p-6 bg-white hover:border-blue-500 transition-colors duration-200 cursor-pointer">
+                        <input type="file" id="fileUpload" name="fileUpload" accept="image/*,.pdf,.doc,.docx" required
+                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                        <div class="text-center">
+                            <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            <p class="mt-2 text-sm text-slate-600 font-medium" id="fileUploadText">اضغط هنا أو قم بسحب
+                                وإفلات الملف هنا</p>
+                            <p id="fileUploadHelp" class="mt-1 text-xs text-slate-500">الأنواع المسموحة: الصور، PDF، أو
+                                مستندات Word (سيتم حفظها في Google Drive).</p>
+                        </div>
+                    </div>
+                </div>
 
-            <!-- حقل اسم المادة (يظهر فقط عند اختيار مادة او اكثر) -->
-            <div id="specificSubjectsSection" class="hidden mt-4">
-                <label for="specificSubjectsInput" class="block text-sm font-bold text-gray-700 mb-2">اسم المادة /
-                    المواد <span class="text-red-500">*</span></label>
-                <input type="text" id="specificSubjectsInput" name="specificSubjectsInput"
-                    placeholder="أدخل أسماء المواد هنا..."
-                    class="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            </div>
+                <!-- زر الإرسال -->
+                <div class="pt-4">
+                    <button type="submit" id="submitBtn"
+                        class="w-full flex items-center justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-md text-base font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:-translate-y-0.5">
+                        <span id="btnText">إرسال الطلب</span>
+                        <div id="btnLoader" class="loader mr-3 hidden"></div>
+                    </button>
+                </div>
+            </form>
+        </section>
 
-            <!-- التنويه والمستندات (تظهر وتصبح إجبارية فقط عند اختيار "مواد الفصلين معا") -->
-            <div id="notesSection" class="hidden bg-blue-50 p-5 rounded-md border border-blue-100">
-                <div class="flex items-start mb-4">
-                    <svg class="h-6 w-6 text-blue-600 mt-0.5 ml-2 flex-shrink-0" xmlns="http://www.w3.org/2000/svg"
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <!-- القسم الخاص بتسجيل الدخول لحماية لوحة التحكم -->
+        <section id="loginView" class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 border border-gray-100 hidden transition-all duration-300">
+            <div class="text-center mb-6">
+                <div class="inline-flex bg-blue-50 p-3 rounded-full text-blue-600 mb-3">
+                    <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
-                    <p class="text-sm text-blue-800 font-medium leading-relaxed">
-                        <span class="font-bold text-blue-900">تنويه:</span> لقد اخترت (مواد الفصلين معاً). يجب عليك
-                        إرفاق المستندات المطلوبة (طبية او غيرها) أو وصف الحالة كتابةً في الحقل أدناه.
-                    </p>
                 </div>
-
-                <label for="notes" class="block text-sm font-bold text-gray-700 mb-2">ملاحظة <span
-                        class="text-red-500">*</span></label>
-                <textarea id="notes" name="notes" rows="4" placeholder="اكتب وصف الحالة هنا..."
-                    class="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                <h2 class="text-xl font-bold text-slate-800 font-bold">تسجيل دخول بوابة الإدارة</h2>
+                <p class="text-xs text-slate-500 mt-1">الرجاء إدخال بيانات الاعتماد للوصول إلى لوحة الإحصائيات والطلبات</p>
             </div>
 
-            <!-- تنويه التجميد (تظهر وتصبح إجبارية فقط عند اختيار "تجميد") -->
-            <div id="freezeSection" class="hidden bg-blue-50 p-5 rounded-md border border-blue-100">
-                <div class="flex items-start">
-                    <svg class="h-6 w-6 text-blue-600 mt-0.5 ml-2 flex-shrink-0" xmlns="http://www.w3.org/2000/svg"
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <!-- رسالة الخطأ لتسجيل الدخول -->
+            <div id="loginErrorBox" class="hidden mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs font-medium text-right flex items-center gap-2">
+                <svg class="h-4 w-4 text-rose-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span id="loginErrorMessage">اسم المستخدم أو كلمة المرور غير صحيحة!</span>
+            </div>
+
+            <form id="loginForm" class="space-y-4 text-right">
+                <div>
+                    <label for="loginUsername" class="block text-xs font-bold text-slate-700 mb-2">البريد الإلكتروني</label>
+                    <input type="text" id="loginUsername" required placeholder="fcsit@oiu.edu.sa"
+                        class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                </div>
+
+                <div>
+                    <label for="loginPassword" class="block text-xs font-bold text-slate-700 mb-2">كلمة المرور</label>
+                    <input type="password" id="loginPassword" required placeholder="أدخل كلمة المرور"
+                        class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" id="loginSubmitBtn"
+                        class="w-full flex items-center justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-md text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                        <span>تسجيل الدخول</span>
+                        <div id="loginLoader" class="loader mr-3 hidden"></div>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- القسم الثاني: لوحة التحكم والتحليلات -->
+        <section id="dashboardView" class="w-full hidden space-y-8 transition-all duration-300">
+
+            <!-- عنوان وأدوات لوحة التحكم -->
+            <div
+                class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                <div class="text-right">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        لوحة تحكم إحصائيات الطلبات
+                        <span id="demoModeBadge"
+                            class="hidden text-xs bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-full border border-amber-200">وضع
+                            تجريبي (بيانات محاكاة)</span>
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">تحديث حي ومباشر لكافة الطلبات المقدمة من الطلاب</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div id="dbLoader" class="loader hidden"></div>
+                    <button id="refreshDataBtn"
+                        class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-all duration-200 active:scale-95">
+                        <svg class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17.75" />
+                        </svg>
+                        تحديث البيانات
+                    </button>
+                    <button id="logoutBtn"
+                        class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-red-600 bg-white border border-red-200 rounded-xl hover:bg-red-50 shadow-sm transition-all duration-200 active:scale-95">
+                        <svg class="h-4 w-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        تسجيل الخروج
+                    </button>
+                </div>
+            </div>
+
+            <!-- إشعار المزامنة وتنبيه doGet -->
+            <div id="scriptConfigAlert"
+                class="hidden bg-amber-50 p-4 rounded-2xl border border-amber-200 text-sm text-amber-800">
+                <div class="flex items-start gap-3">
+                    <svg class="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
-                    <p class="text-sm text-blue-800 font-medium leading-relaxed">
-                        <span class="font-bold text-blue-900">تنويه:</span> لقد اخترت (تجميد). يرجى إرفاق مستند تسديد
-                        الرسوم في حقل المرفقات أدناه كشرط إجباري لإتمام الطلب.
-                    </p>
+                    <div>
+                        <span class="font-bold">رابط Google Sheets غير مهيأ بالكامل:</span> تعذر العثور على وظيفة <code
+                            class="bg-amber-100 px-1 rounded text-red-700 font-mono">doGet</code> في نص التطبيق البرمجي
+                        الخاص بك. لعرض البيانات الحقيقية من جدول البيانات، يرجى نسخ كود Apps Script الجديد من خطة العمل
+                        وإعادة نشره. نعرض لك الآن بيانات توضيحية ممتازة لتجربة لوحة التحكم.
+                    </div>
                 </div>
             </div>
 
-            <!-- حقل المرفقات -->
-            <div class="bg-white p-5 rounded-md border border-gray-200 shadow-sm">
-                <label id="fileUploadLabel" for="fileUpload" class="block text-sm font-bold text-gray-700 mb-2">إرفاق
-                    عذر طبي أو مستندات
-                    (إجباري) <span class="text-red-500">*</span></label>
-                <input type="file" id="fileUpload" name="fileUpload" accept="image/*,.pdf,.doc,.docx" required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 cursor-pointer">
-                <p id="fileUploadHelp" class="text-xs text-gray-500 mt-2">يمكنك إرفاق ملف (صورة، PDF، أو مستند) ليتم
-                    حفظه تلقائياً في Google
-                    Drive.</p>
+            <!-- كروت المؤشرات الإحصائية (Metrics Grid) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- كرت إجمالي الطلبات -->
+                <div
+                    class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow duration-200">
+                    <div class="text-right">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">إجمالي الطلبات</p>
+                        <h3 id="metricTotal" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
+                    </div>
+                    <div class="bg-blue-50 p-3.5 rounded-xl text-blue-600">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- كرت امتحانات بديلة -->
+                <div
+                    class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow duration-200">
+                    <div class="text-right">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">الامتحان البديل</p>
+                        <h3 id="metricAlternative" class="text-3xl font-extrabold text-blue-600 mt-1">0</h3>
+                    </div>
+                    <div class="bg-blue-50 p-3.5 rounded-xl text-blue-600">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- كرت التجميد -->
+                <div
+                    class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow duration-200">
+                    <div class="text-right">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">طلبات التجميد</p>
+                        <h3 id="metricFreeze" class="text-3xl font-extrabold text-amber-600 mt-1">0</h3>
+                    </div>
+                    <div class="bg-amber-50 p-3.5 rounded-xl text-amber-600">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- كرت نسبة الجنس -->
+                <div
+                    class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow duration-200">
+                    <div class="text-right">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">توزيع الطلاب</p>
+                        <h3 id="metricGenderRatio" class="text-sm font-extrabold text-slate-800 mt-1">طالب: 0 | طالبة: 0
+                        </h3>
+                    </div>
+                    <div class="bg-purple-50 p-3.5 rounded-xl text-purple-600">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </div>
+                </div>
             </div>
 
-            <!-- زر الإرسال -->
-            <div class="pt-4">
-                <button type="submit" id="submitBtn"
-                    class="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
-                    <span id="btnText">إرسال الطلب</span>
-                    <div id="btnLoader" class="loader mr-3"></div>
+            <!-- قسم الرسوم البيانية (Charts Grid) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- الرسم البياني للأقسام -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                    <h4 class="text-sm font-bold text-slate-800 mb-4 text-right">الطلبات حسب الأقسام الأكاديمية</h4>
+                    <div class="h-64 relative flex items-center justify-center">
+                        <canvas id="departmentChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- الرسم البياني للفرقة الدراسية -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                    <h4 class="text-sm font-bold text-slate-800 mb-4 text-right">الطلبات حسب الفرقة الدراسية</h4>
+                    <div class="h-64 relative flex items-center justify-center">
+                        <canvas id="levelChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- جدول الطلبات والفلترة -->
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                <!-- عناصر التحكم والبحث والفلترة -->
+                <div class="p-6 border-b border-slate-100 space-y-4">
+                    <h3 class="text-base font-bold text-slate-800 text-right">سجل طلبات الطلاب</h3>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- حقل البحث -->
+                        <div class="relative">
+                            <input type="text" id="searchFilter" placeholder="ابحث باسم الطالب أو الرقم الجامعي..."
+                                class="w-full pl-4 pr-10 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <span
+                                class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </span>
+                        </div>
+
+                        <!-- فلتر القسم -->
+                        <select id="deptFilter"
+                            class="px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                            <option value="">جميع الأقسام</option>
+                            <option value="علوم الحاسوب">علوم الحاسوب</option>
+                            <option value="نظم المعلومات">نظم المعلومات</option>
+                            <option value="تقانة المعلومات">تقانة المعلومات</option>
+                        </select>
+
+                        <!-- فلتر الفرقة -->
+                        <select id="levelFilter"
+                            class="px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                            <option value="">جميع الفرق</option>
+                            <option value="الأولى">الأولى</option>
+                            <option value="الثانية">الثانية</option>
+                            <option value="الثالثة">الثالثة</option>
+                            <option value="الرابعة">الرابعة</option>
+                            <option value="الخامسة">الخامسة</option>
+                        </select>
+
+                        <!-- فلتر نوع الطلب -->
+                        <select id="typeFilter"
+                            class="px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                            <option value="">جميع الطلبات</option>
+                            <option value="بديل">امتحان بديل</option>
+                            <option value="تجميد">تجميد قيد</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- جدول عرض البيانات -->
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-right border-collapse min-w-[800px]">
+                        <thead>
+                            <tr
+                                class="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-500 uppercase">
+                                <th class="py-4 px-6">تاريخ تقديم الطلب</th>
+                                <th class="py-4 px-6">الاسم الكامل</th>
+                                <th class="py-4 px-6">الرقم الجامعي</th>
+                                <th class="py-4 px-6">القسم</th>
+                                <th class="py-4 px-6">الفرقة</th>
+                                <th class="py-4 px-6">نوع الطلب</th>
+                                <th class="py-4 px-6 text-center">المرفق</th>
+                                <th class="py-4 px-6 text-center">التحكم</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-slate-100 text-sm text-slate-700">
+                            <!-- سيتم تعبئتها ديناميكياً -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- رسالة الجدول فارغ -->
+                <div id="noDataMessage" class="hidden text-center py-12 bg-white">
+                    <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0V9a2 2 0 00-2-2H6a2 2 0 00-2 2v4.5m12+3.5h-12" />
+                    </svg>
+                    <p class="mt-4 text-sm text-slate-500">لا توجد طلبات مطابقة لمعايير البحث والفرز الحالية.</p>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- نافذة تفاصيل الطلب (Detail Modal) -->
+    <div id="detailsModal"
+        class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div
+            class="bg-white rounded-2xl shadow-xl border border-slate-100 w-full max-w-lg overflow-hidden transition-all duration-200">
+            <!-- الهيدر -->
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="text-base font-bold text-slate-800">تفاصيل طلب الطالب كاملة</h3>
+                <button onclick="closeDetailsModal()"
+                    class="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-100">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                 </button>
             </div>
-        </form>
 
+            <!-- المحتوى -->
+            <div class="p-6 space-y-4 text-right overflow-y-auto max-h-[70vh] custom-scrollbar">
+                <!-- الاسم ونوع المتقدم -->
+                <div>
+                    <span class="text-xs text-slate-400 block mb-0.5 font-bold">اسم الطالب</span>
+                    <span id="modalName" class="text-sm font-bold text-slate-800">أحمد محمد علي</span>
+                    <span id="modalGender"
+                        class="inline-block mr-2 text-xs bg-blue-50 text-blue-800 px-2 py-0.5 rounded-md font-medium">طالب</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <span class="text-xs text-slate-400 block mb-0.5 font-bold">الرقم الجامعي</span>
+                        <span id="modalUniId" class="text-sm font-bold text-slate-800">44100234</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-400 block mb-0.5 font-bold">الرقم الوطني</span>
+                        <span id="modalNatId" class="text-sm font-bold text-slate-800">10123456789</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <span class="text-xs text-slate-400 block mb-0.5 font-bold">القسم الأكاديمي</span>
+                        <span id="modalDept" class="text-sm font-bold text-slate-800">علوم الحاسوب</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-400 block mb-0.5 font-bold">الفرقة الدراسية</span>
+                        <span id="modalLevel" class="text-sm font-bold text-slate-800">الثانية</span>
+                    </div>
+                </div>
+
+                <div>
+                    <span class="text-xs text-slate-400 block mb-0.5 font-bold">نوع الإجراء / المواد المطلوبة</span>
+                    <span id="modalSubjects" class="text-sm font-bold text-blue-600 block">جميع مواد الفصل الاول
+                        كبديل</span>
+                </div>
+
+                <div>
+                    <span class="text-xs text-slate-400 block mb-0.5 font-bold">وصف الحالة / الملاحظات</span>
+                    <div id="modalNotes"
+                        class="bg-slate-50 border border-slate-100 rounded-xl p-3.5 text-xs sm:text-sm text-slate-700 leading-relaxed max-h-32 overflow-y-auto custom-scrollbar">
+                        لا توجد ملاحظات إضافية.
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 pt-2 border-t border-slate-100 items-center">
+                    <div>
+                        <span class="text-xs text-slate-400 block mb-0.5 font-bold">تاريخ التقديم</span>
+                        <span id="modalDate" class="text-xs text-slate-500">2026/06/27 10:14 AM</span>
+                    </div>
+                    <div class="text-left">
+                        <a id="modalFileLink" href="#" target="_blank"
+                            class="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3.5 py-2 rounded-xl shadow-sm transition-colors duration-200">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            فتح الملف المرفق
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- أزرار الإغلاق -->
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 text-left">
+                <button onclick="closeDetailsModal()"
+                    class="px-4 py-2 text-sm font-bold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors duration-200">إغلاق
+                    النافذة</button>
+            </div>
+        </div>
     </div>
 
     <script>
         // --- إعدادات Google Sheets ---
-        // ضع الرابط الخاص بـ Web App (Google Apps Script) هنا بعد نشره
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCFxgLWrb2q-XkNML1lNXla_Zfo6nLFoS3fH_KOpCqsYa-pgTAhjkMB7hon81uo7vB3w/exec';
+        // رابط الـ Web App (Google Apps Script) بعد تحديثه بدالة doGet ونشره مجدداً
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNacAQX8LncZ6y1CH5fW1K-Ie1NRFfhSBC7Yh4zCm8DzjMOfXbp8QFPoIEKMwCO4_8uQ/exec';
 
-        /* -------------------------------------------------------------
-        كود Google Apps Script المطلوب وضعه في ملف Google Sheets الخاص بك:
-        1. افتح ملف Google Sheets جديد
-        2. الإضافات (Extensions) > برمجة تطبيقات Google (Apps Script)
-        3. انسخ الكود التالي والصقه:
+        // --- البيانات التوضيحية (Mock Data) في حالة عدم تفعيل doGet بعد ---
+        const MOCK_DATA = [
+            { timestamp: new Date(Date.now() - 3600000 * 2).toISOString(), studentName: "أحمد عبد الرحمن محمد الحسن", gender: "طالب", universityId: "44100101", nationalId: "12345678901", department: "علوم الحاسوب", level: "الرابعة", subjects: "جميع مواد الفصل الاول", notes: "الرجاء قبول طلبي حيث أنني خضعت لعملية جراحية طارئة أثناء فترة الامتحانات.", fileUrl: "https://drive.google.com/open?id=123" },
+            { timestamp: new Date(Date.now() - 3600000 * 24).toISOString(), studentName: "سارة عمر عثمان الفاضل", gender: "طالبة", universityId: "44200342", nationalId: "23456789012", department: "علوم الحاسوب", level: "الثانية", subjects: "تجميد", notes: "طلب تجميد بسبب ظروف مادية قاهرة وتخلف عن سداد الرسوم مؤقتاً.", fileUrl: "https://drive.google.com/open?id=456" },
+            { timestamp: new Date(Date.now() - 3600000 * 48).toISOString(), studentName: "مصعب هاشم صديق يوسف", gender: "طالب", universityId: "44000192", nationalId: "34567890123", department: "تقانة المعلومات", level: "الثالثة", subjects: "مادة او اكثر", notes: "المواد المطلوبة: ذكاء اصطناعي ونظم ملفات. تغيبت بسبب وعكة صحية شديدة.", fileUrl: "https://drive.google.com/open?id=789" },
+            { timestamp: new Date(Date.now() - 3600000 * 72).toISOString(), studentName: "ريان عبد الله إدريس طه", gender: "طالبة", universityId: "44100827", nationalId: "45678901234", department: "نظم المعلومات", level: "الرابعة", subjects: "جميع مواد الفصل الثاني", notes: "ظروف عائلية خاصة اضطرتني للسفر خارج الولاية في فترة الامتحانات.", fileUrl: "https://drive.google.com/open?id=abc" },
+            { timestamp: new Date(Date.now() - 3600000 * 96).toISOString(), studentName: "محمد عبد الرحيم علي الصادق", gender: "طالب", universityId: "44300155", nationalId: "56789012345", department: "تقانة المعلومات", level: "الأولى", subjects: "تجميد", notes: "طلب تجميد العام الدراسي الحالي لظروف أسرية خاصة بالأسرة.", fileUrl: "https://drive.google.com/open?id=def" },
+            { timestamp: new Date(Date.now() - 3600000 * 120).toISOString(), studentName: "منى خالد البدوي الطيب", gender: "طالبة", universityId: "44200421", nationalId: "67890123456", department: "نظم المعلومات", level: "الثانية", subjects: "مواد الفصلين معا", notes: "عذر مرضي مثبت بتقرير طبي نتيجة للإصابة بمرض مزمن تطلب الرقاد في المستشفى.", fileUrl: "https://drive.google.com/open?id=ghi" },
+            { timestamp: new Date(Date.now() - 3600000 * 144).toISOString(), studentName: "يوسف إبراهيم الطيب زين العابدين", gender: "طالب", universityId: "44100911", nationalId: "78901234567", department: "علوم الحاسوب", level: "الخامسة", subjects: "مادة او اكثر", notes: "المادة: هندسة البرمجيات 2. بسبب تداخل في جدول الامتحانات الخارجية.", fileUrl: "https://drive.google.com/open?id=jkl" },
+            { timestamp: new Date(Date.now() - 3600000 * 168).toISOString(), studentName: "هبة الله محمد أحمد الفادني", gender: "طالبة", universityId: "44200033", nationalId: "89012345678", department: "تقانة المعلومات", level: "الثالثة", subjects: "جميع مواد الفصل الاول", notes: "تغيبت بسبب حالة وفاة من الدرجة الأولى في أسرتي الصغيرة.", fileUrl: "https://drive.google.com/open?id=mno" },
+            { timestamp: new Date(Date.now() - 3600000 * 192).toISOString(), studentName: "خالد سعيد صالح عبيد", gender: "طالب", universityId: "44000499", nationalId: "90123456789", department: "نظم المعلومات", level: "الأولى", subjects: "تجميد", notes: "طلب تجميد لتسديد رسوم الكلية متأخراً وإمكانية الحضور متأثرة بالوظيفة.", fileUrl: "https://drive.google.com/open?id=pqr" },
+            { timestamp: new Date(Date.now() - 3600000 * 216).toISOString(), studentName: "أمل مبارك عوض الكريم", gender: "طالبة", universityId: "44100778", nationalId: "01234567890", department: "علوم الحاسوب", level: "الرابعة", subjects: "مادة او اكثر", notes: "المادة: أمن الشبكات. عذر مرضي طارئ يوم الامتحان المذكور.", fileUrl: "https://drive.google.com/open?id=stu" }
+        ];
 
-        function doPost(e) {
-            try {
-                // فك تشفير البيانات القادمة
-                var dataObj = JSON.parse(e.postData.contents);
-                var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-                var fileUrl = "لا يوجد مرفق";
-                
-                // معالجة الملف المرفق وحفظه في Google Drive داخل مجلد fcsitsickleave
-                if (dataObj.fileBase64 && dataObj.fileName) {
-                    var folder;
-                    var folders = DriveApp.getFoldersByName("fcsitsickleave");
-                    if (folders.hasNext()) {
-                        folder = folders.next();
-                    } else {
-                        // إذا لم يتم العثور على المجلد بالاسم، يتم إنشاؤه أو الحفظ في المجلد الرئيسي
-                        folder = DriveApp.getRootFolder();
-                    }
-                    var blob = Utilities.newBlob(Utilities.base64Decode(dataObj.fileBase64), dataObj.mimeType, dataObj.fileName);
-                    var file = folder.createFile(blob);
-                    fileUrl = file.getUrl(); // رابط الملف
-                }
+        let dashboardData = []; // البيانات الفعالة حالياً
+        let deptChartInstance = null;
+        let levelChartInstance = null;
 
-                // تحديد المادة (هل هي محددة من القائمة أم مكتوبة يدوياً)
-                var finalSubject = dataObj.subjects === 'مادة او اكثر' ? dataObj.specificSubjects : dataObj.subjects;
-
-                var data = [
-                    new Date(), // Timestamp
-                    dataObj.studentName,
-                    dataObj.gender, // نوع المتقدم (طالب / طالبة)
-                    dataObj.universityId,
-                    dataObj.nationalId,
-                    dataObj.department,
-                    dataObj.level,
-                    finalSubject,
-                    dataObj.notes || "",
-                    fileUrl
-                ];
-                sheet.appendRow(data);
-                return ContentService.createTextOutput(JSON.stringify({"result":"success"})).setMimeType(ContentService.MimeType.JSON);
-            } catch(error) {
-                return ContentService.createTextOutput(JSON.stringify({"result":"error", "error": error.message})).setMimeType(ContentService.MimeType.JSON);
-            }
-        }
-        
-        4. اضغط على "نشر" (Deploy) > "نشر جديد" (New deployment)
-        5. اختر النوع "تطبيق ويب" (Web app)
-        6. إمكانية الوصول: "أنا فقط" (أو أي شخص إذا أردت) ومن يمكنه الدخول: "أي شخص" (Anyone)
-        7. انسخ رابط تطبيق الويب والصقه في متغير SCRIPT_URL بالأعلى.
-        -------------------------------------------------------------
-        */
-
+        // عناصر واجهة النموذج
         const form = document.getElementById('examForm');
         const subjectsSelect = document.getElementById('subjects');
         const specificSubjectsSection = document.getElementById('specificSubjectsSection');
@@ -283,24 +670,426 @@
         const freezeSection = document.getElementById('freezeSection');
         const fileUploadLabel = document.getElementById('fileUploadLabel');
         const fileUploadHelp = document.getElementById('fileUploadHelp');
+        const fileUpload = document.getElementById('fileUpload');
+        const fileUploadText = document.getElementById('fileUploadText');
         const submitBtn = document.getElementById('submitBtn');
         const btnText = document.getElementById('btnText');
         const btnLoader = document.getElementById('btnLoader');
         const alertBox = document.getElementById('alertBox');
 
-        // منطق إظهار حقل الملاحظات الإجباري
+        // عناصر واجهة شريط التنقل
+        const navFormBtn = document.getElementById('navFormBtn');
+        const navDashboardBtn = document.getElementById('navDashboardBtn');
+        const formView = document.getElementById('formView');
+        const dashboardView = document.getElementById('dashboardView');
+
+        // عناصر واجهة تسجيل الدخول وحمايتها
+        const loginView = document.getElementById('loginView');
+        const loginForm = document.getElementById('loginForm');
+        const loginUsernameInput = document.getElementById('loginUsername');
+        const loginPasswordInput = document.getElementById('loginPassword');
+        const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+        const loginLoader = document.getElementById('loginLoader');
+        const loginErrorBox = document.getElementById('loginErrorBox');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // عناصر واجهة لوحة التحكم
+        const dbLoader = document.getElementById('dbLoader');
+        const demoModeBadge = document.getElementById('demoModeBadge');
+        const scriptConfigAlert = document.getElementById('scriptConfigAlert');
+        const refreshDataBtn = document.getElementById('refreshDataBtn');
+        const searchFilter = document.getElementById('searchFilter');
+        const deptFilter = document.getElementById('deptFilter');
+        const levelFilter = document.getElementById('levelFilter');
+        const typeFilter = document.getElementById('typeFilter');
+        const tableBody = document.getElementById('tableBody');
+        const noDataMessage = document.getElementById('noDataMessage');
+        const detailsModal = document.getElementById('detailsModal');
+
+        // --- منطق تبديل علامات التبويب ---
+        navFormBtn.addEventListener('click', () => switchTab('form'));
+        navDashboardBtn.addEventListener('click', () => switchTab('dashboard'));
+
+        function switchTab(tab) {
+            if (tab === 'form') {
+                formView.classList.remove('hidden');
+                dashboardView.classList.add('hidden');
+                loginView.classList.add('hidden');
+
+                navFormBtn.className = "flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 bg-white text-blue-600 shadow-sm border border-slate-100";
+                navDashboardBtn.className = "flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-800";
+            } else {
+                const isLoggedIn = sessionStorage.getItem('isFcsitLoggedIn') === 'true';
+
+                if (isLoggedIn) {
+                    formView.classList.add('hidden');
+                    loginView.classList.add('hidden');
+                    dashboardView.classList.remove('hidden');
+
+                    navDashboardBtn.className = "flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 bg-white text-blue-600 shadow-sm border border-slate-100";
+                    navFormBtn.className = "flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-800";
+
+                    // تحميل البيانات عند فتح لوحة التحكم لأول مرة
+                    if (dashboardData.length === 0) {
+                        loadDashboardData();
+                    }
+                } else {
+                    formView.classList.add('hidden');
+                    dashboardView.classList.add('hidden');
+                    loginView.classList.remove('hidden');
+
+                    navDashboardBtn.className = "flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 bg-white text-blue-600 shadow-sm border border-slate-100";
+                    navFormBtn.className = "flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-800";
+                }
+            }
+        }
+
+        // --- منطق تسجيل الدخول وحمايته ---
+        loginForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            loginSubmitBtn.disabled = true;
+            loginLoader.classList.remove('hidden');
+            loginErrorBox.classList.add('hidden');
+
+            const username = loginUsernameInput.value.trim();
+            const password = loginPasswordInput.value.trim();
+
+            setTimeout(() => {
+                const CORRECT_USERNAME = "fcsit@oiu.edu.sa";
+                const CORRECT_PASSWORD = "fcsit2026";
+
+                if (username === CORRECT_USERNAME && password === CORRECT_PASSWORD) {
+                    sessionStorage.setItem('isFcsitLoggedIn', 'true');
+                    loginForm.reset();
+                    switchTab('dashboard');
+                } else {
+                    loginErrorBox.classList.remove('hidden');
+                }
+
+                loginSubmitBtn.disabled = false;
+                loginLoader.classList.add('hidden');
+            }, 800);
+        });
+
+        logoutBtn.addEventListener('click', function () {
+            sessionStorage.removeItem('isFcsitLoggedIn');
+            switchTab('dashboard');
+        });
+
+        // --- منطق جلب بيانات لوحة التحكم ---
+        refreshDataBtn.addEventListener('click', loadDashboardData);
+
+        function loadDashboardData() {
+            dbLoader.classList.remove('hidden');
+            refreshDataBtn.disabled = true;
+            refreshDataBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            // التحقق مما إذا كان رابط Apps Script حقيقياً وليس نائباً
+            if (SCRIPT_URL === 'YOUR_GOOGLE_SCRIPT_WEB_APP_URL_HERE' || !SCRIPT_URL.startsWith('https://')) {
+                useMockData();
+                return;
+            }
+
+            fetch(SCRIPT_URL)
+                .then(response => {
+                    if (!response.ok) throw new Error('استجابة الشبكة غير صحيحة');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.result === 'success') {
+                        dashboardData = data.data;
+                        demoModeBadge.classList.add('hidden');
+                        scriptConfigAlert.classList.add('hidden');
+                        renderDashboard(dashboardData);
+                    } else {
+                        throw new Error(data.error || 'فشل السكريبت في جلب البيانات');
+                    }
+                })
+                .catch(error => {
+                    console.warn('تعذر جلب البيانات الحقيقية من جدول البيانات. جاري الانتقال إلى البيانات الافتراضية. التفاصيل:', error);
+                    useMockData();
+                })
+                .finally(() => {
+                    dbLoader.classList.add('hidden');
+                    refreshDataBtn.disabled = false;
+                    refreshDataBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                });
+        }
+
+        function useMockData() {
+            dashboardData = MOCK_DATA;
+            demoModeBadge.classList.remove('hidden');
+            scriptConfigAlert.classList.remove('hidden');
+            renderDashboard(dashboardData);
+            dbLoader.classList.add('hidden');
+            refreshDataBtn.disabled = false;
+            refreshDataBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        function renderDashboard(data) {
+            updateMetrics(data);
+            updateTable(data);
+            updateCharts(data);
+        }
+
+        // --- منطق الفلترة والبحث ---
+        [searchFilter, deptFilter, levelFilter, typeFilter].forEach(el => {
+            el.addEventListener('input', applyFilters);
+        });
+
+        function applyFilters() {
+            const query = searchFilter.value.toLowerCase().trim();
+            const dept = deptFilter.value;
+            const lvl = levelFilter.value;
+            const type = typeFilter.value;
+
+            const filtered = dashboardData.filter(item => {
+                const matchesQuery = !query ||
+                    (item.studentName && item.studentName.toLowerCase().includes(query)) ||
+                    (item.universityId && item.universityId.toString().toLowerCase().includes(query)) ||
+                    (item.nationalId && item.nationalId.toString().toLowerCase().includes(query));
+
+                const matchesDept = !dept || item.department === dept;
+                const matchesLevel = !lvl || item.level === lvl;
+
+                let matchesType = true;
+                if (type === 'تجميد') {
+                    matchesType = item.subjects === 'تجميد';
+                } else if (type === 'بديل') {
+                    matchesType = item.subjects !== 'تجميد';
+                }
+
+                return matchesQuery && matchesDept && matchesLevel && matchesType;
+            });
+
+            updateMetrics(filtered);
+            updateTable(filtered);
+            updateCharts(filtered);
+        }
+
+        // --- تحديث الأرقام والبطاقات ---
+        function updateMetrics(data) {
+            const total = data.length;
+            const freezeCount = data.filter(item => item.subjects === 'تجميد').length;
+            const alternativeCount = total - freezeCount;
+
+            const maleCount = data.filter(item => item.gender === 'طالب').length;
+            const femaleCount = data.filter(item => item.gender === 'طالبة').length;
+
+            document.getElementById('metricTotal').textContent = total;
+            document.getElementById('metricAlternative').textContent = alternativeCount;
+            document.getElementById('metricFreeze').textContent = freezeCount;
+            document.getElementById('metricGenderRatio').textContent = `طالب: ${maleCount} | طالبة: ${femaleCount}`;
+        }
+
+        // --- تحديث الجدول ---
+        function updateTable(data) {
+            tableBody.innerHTML = '';
+
+            if (data.length === 0) {
+                noDataMessage.classList.remove('hidden');
+                return;
+            }
+            noDataMessage.classList.add('hidden');
+
+            data.forEach((item) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition-colors duration-150 border-b border-slate-100';
+
+                let formattedDate = 'غير معروف';
+                if (item.timestamp) {
+                    try {
+                        const dateObj = new Date(item.timestamp);
+                        formattedDate = dateObj.toLocaleDateString('ar-EG', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        });
+                    } catch (e) {
+                        formattedDate = item.timestamp;
+                    }
+                }
+
+                const isFreeze = item.subjects === 'تجميد';
+                const typeBadge = isFreeze
+                    ? '<span class="px-2.5 py-1 text-xs bg-amber-50 text-amber-800 rounded-full font-bold border border-amber-200">تجميد قيد</span>'
+                    : '<span class="px-2.5 py-1 text-xs bg-blue-50 text-blue-800 rounded-full font-bold border border-blue-200">امتحان بديل</span>';
+
+                const hasFile = item.fileUrl && item.fileUrl !== 'لا يوجد مرفق' && item.fileUrl !== 'https://drive.google.com/open?id=123' && !item.fileUrl.includes('id=123') && !item.fileUrl.includes('id=456');
+                const fileButton = (item.fileUrl && item.fileUrl !== 'لا يوجد مرفق')
+                    ? `<a href="${item.fileUrl}" target="_blank" class="inline-flex items-center justify-center p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors" title="عرض المرفق">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                        </svg>
+                       </a>`
+                    : '<span class="text-xs text-slate-400">لا يوجد</span>';
+
+                const itemDataAttr = encodeURIComponent(JSON.stringify(item));
+
+                tr.innerHTML = `
+                    <td class="py-4 px-6 text-xs text-slate-500 font-mono">${formattedDate}</td>
+                    <td class="py-4 px-6 font-bold text-slate-800">${item.studentName}</td>
+                    <td class="py-4 px-6 text-xs text-slate-600 font-mono">${item.universityId}</td>
+                    <td class="py-4 px-6 text-xs text-slate-600">${item.department}</td>
+                    <td class="py-4 px-6 text-xs text-slate-600">${item.level}</td>
+                    <td class="py-4 px-6">${typeBadge}</td>
+                    <td class="py-4 px-6 text-center">${fileButton}</td>
+                    <td class="py-4 px-6 text-center">
+                        <button onclick="showDetails('${itemDataAttr}')" class="text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline px-2.5 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
+                            عرض التفاصيل
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // --- تفاصيل الطلب نافذة منبثقة ---
+        window.showDetails = function (encodedItem) {
+            const item = JSON.parse(decodeURIComponent(encodedItem));
+
+            document.getElementById('modalName').textContent = item.studentName || 'غير معروف';
+            document.getElementById('modalGender').textContent = item.gender || 'غير محدد';
+            document.getElementById('modalGender').className = item.gender === 'طالبة'
+                ? 'inline-block mr-2 text-xs bg-purple-50 text-purple-800 px-2 py-0.5 rounded-md font-medium'
+                : 'inline-block mr-2 text-xs bg-blue-50 text-blue-800 px-2 py-0.5 rounded-md font-medium';
+
+            document.getElementById('modalUniId').textContent = item.universityId || 'غير معروف';
+            document.getElementById('modalNatId').textContent = item.nationalId || 'غير معروف';
+            document.getElementById('modalDept').textContent = item.department || 'غير معروف';
+            document.getElementById('modalLevel').textContent = item.level || 'غير معروف';
+
+            const isFreeze = item.subjects === 'تجميد';
+            document.getElementById('modalSubjects').textContent = isFreeze ? 'تجميد قيد دراسي' : `امتحان بديل لـ: ${item.subjects}`;
+            document.getElementById('modalSubjects').className = isFreeze
+                ? 'text-sm font-bold text-amber-600 block'
+                : 'text-sm font-bold text-blue-600 block';
+
+            document.getElementById('modalNotes').textContent = item.notes || 'لا توجد ملاحظات إضافية.';
+
+            let formattedDate = 'غير معروف';
+            if (item.timestamp) {
+                try {
+                    formattedDate = new Date(item.timestamp).toLocaleString('ar-EG');
+                } catch (e) {
+                    formattedDate = item.timestamp;
+                }
+            }
+            document.getElementById('modalDate').textContent = formattedDate;
+
+            const modalFileLink = document.getElementById('modalFileLink');
+            if (item.fileUrl && item.fileUrl !== 'لا يوجد مرفق') {
+                modalFileLink.href = item.fileUrl;
+                modalFileLink.style.display = 'inline-flex';
+            } else {
+                modalFileLink.style.display = 'none';
+            }
+
+            detailsModal.classList.remove('hidden');
+        };
+
+        window.closeDetailsModal = function () {
+            detailsModal.classList.add('hidden');
+        };
+
+        detailsModal.addEventListener('click', function (e) {
+            if (e.target === detailsModal) {
+                closeDetailsModal();
+            }
+        });
+
+        // --- تحديث الرسوم البيانية ---
+        function updateCharts(data) {
+            const deptCounts = { "علوم الحاسوب": 0, "نظم المعلومات": 0, "تقانة المعلومات": 0 };
+            const levelCounts = { "الأولى": 0, "الثانية": 0, "الثالثة": 0, "الرابعة": 0, "الخامسة": 0 };
+
+            data.forEach(item => {
+                if (deptCounts.hasOwnProperty(item.department)) deptCounts[item.department]++;
+                if (levelCounts.hasOwnProperty(item.level)) levelCounts[item.level]++;
+            });
+
+            const deptLabels = Object.keys(deptCounts);
+            const deptValues = Object.values(deptCounts);
+
+            const levelLabels = Object.keys(levelCounts);
+            const levelValues = Object.values(levelCounts);
+
+            // الرسم البياني للأقسام
+            if (deptChartInstance) {
+                deptChartInstance.data.datasets[0].data = deptValues;
+                deptChartInstance.update();
+            } else {
+                const ctxDept = document.getElementById('departmentChart').getContext('2d');
+                deptChartInstance = new Chart(ctxDept, {
+                    type: 'doughnut',
+                    data: {
+                        labels: deptLabels,
+                        datasets: [{
+                            data: deptValues,
+                            backgroundColor: ['#3b82f6', '#10b981', '#a855f7'],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { font: { family: 'Tajawal', size: 12 } }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // الرسم البياني للفرق الدراسية
+            if (levelChartInstance) {
+                levelChartInstance.data.datasets[0].data = levelValues;
+                levelChartInstance.update();
+            } else {
+                const ctxLevel = document.getElementById('levelChart').getContext('2d');
+                levelChartInstance = new Chart(ctxLevel, {
+                    type: 'bar',
+                    data: {
+                        labels: levelLabels,
+                        datasets: [{
+                            label: 'عدد الطلبات',
+                            data: levelValues,
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 8,
+                            barThickness: 20
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1, font: { family: 'Tajawal' } }
+                            },
+                            x: { ticks: { font: { family: 'Tajawal' } } }
+                        }
+                    }
+                });
+            }
+        }
+
+        // --- منطق تفاعل النموذج ---
         subjectsSelect.addEventListener('change', function () {
-            // معالجة تنويه الفصلين معاً
             if (this.value === 'مواد الفصلين معا') {
                 notesSection.classList.remove('hidden');
                 notesInput.setAttribute('required', 'required');
             } else {
                 notesSection.classList.add('hidden');
                 notesInput.removeAttribute('required');
-                notesInput.value = ''; // تصفير الحقل إذا تراجع عن الاختيار
+                notesInput.value = '';
             }
 
-            // معالجة اختيار مادة أو أكثر
             if (this.value === 'مادة او اكثر') {
                 specificSubjectsSection.classList.remove('hidden');
                 specificSubjectsInput.setAttribute('required', 'required');
@@ -310,7 +1099,6 @@
                 specificSubjectsInput.value = '';
             }
 
-            // معالجة اختيار تجميد
             if (this.value === 'تجميد') {
                 freezeSection.classList.remove('hidden');
                 fileUploadLabel.innerHTML = 'إرفاق مستند تسديد الرسوم (إجباري) <span class="text-red-500">*</span>';
@@ -322,29 +1110,39 @@
             }
         });
 
-        // رسائل التنبيه
-        function showAlert(message, type) {
-            alertBox.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
-            if (type === 'success') {
-                alertBox.classList.add('bg-green-100', 'text-green-800');
+        // تحسين تفاعل رفع الملف
+        fileUpload.addEventListener('change', function () {
+            if (this.files.length > 0) {
+                fileUploadText.textContent = 'تم اختيار الملف: ' + this.files[0].name;
+                fileUploadText.className = 'mt-2 text-sm text-blue-600 font-bold';
             } else {
-                alertBox.classList.add('bg-red-100', 'text-red-800');
+                fileUploadText.textContent = 'اضغط هنا أو قم بسحب وإفلات الملف هنا';
+                fileUploadText.className = 'mt-2 text-sm text-slate-600 font-medium';
+            }
+        });
+
+        // رسائل التنبيه للنموذج
+        function showAlert(message, type) {
+            alertBox.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-rose-50', 'text-rose-800', 'border-rose-200', 'border');
+            if (type === 'success') {
+                alertBox.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'border');
+            } else {
+                alertBox.classList.add('bg-rose-50', 'text-rose-800', 'border-rose-200', 'border');
             }
             alertBox.innerHTML = `<p class="font-bold">${message}</p>`;
+            alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         // معالجة إرسال النموذج
         form.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            // تغيير حالة الزر إلى جاري الإرسال
             submitBtn.disabled = true;
             submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
             btnText.textContent = 'جاري الإرسال...';
-            btnLoader.style.display = 'inline-block';
+            btnLoader.classList.remove('hidden');
             alertBox.classList.add('hidden');
 
-            // قراءة الملف إذا وجد وتحويله إلى Base64 للإرسال لـ Google Script
             const fileInput = document.getElementById('fileUpload');
             let fileBase64 = '';
             let fileName = '';
@@ -357,7 +1155,7 @@
 
                 const reader = new FileReader();
                 reader.onload = function (event) {
-                    fileBase64 = event.target.result.split(',')[1]; // استخراج الكود فقط
+                    fileBase64 = event.target.result.split(',')[1];
                     sendDataToGAS(fileBase64, fileName, mimeType);
                 };
                 reader.readAsDataURL(file);
@@ -367,7 +1165,6 @@
         });
 
         function sendDataToGAS(fileBase64, fileName, mimeType) {
-            // تجهيز البيانات ككائن JSON
             const payload = {
                 studentName: document.getElementById('studentName').value,
                 gender: document.getElementById('gender').value,
@@ -383,22 +1180,14 @@
                 mimeType: mimeType
             };
 
-            // إذا لم يتم وضع رابط السكريبت الحقيقي، نقوم بعمل محاكاة للإرسال (للتجربة)
-            if (SCRIPT_URL === 'YOUR_GOOGLE_SCRIPT_WEB_APP_URL_HERE') {
+            if (SCRIPT_URL === 'YOUR_GOOGLE_SCRIPT_WEB_APP_URL_HERE' || !SCRIPT_URL.startsWith('https://')) {
                 setTimeout(() => {
-                    showAlert('تم إرسال الطلب بنجاح! (تمت المحاكاة - تأكد من ربط Google Script لحفظ البيانات والملفات)', 'success');
-                    form.reset();
-                    notesSection.classList.add('hidden');
-                    if (specificSubjectsSection) specificSubjectsSection.classList.add('hidden');
-                    freezeSection.classList.add('hidden');
-                    fileUploadLabel.innerHTML = 'إرفاق عذر طبي أو مستندات (إجباري) <span class="text-red-500">*</span>';
-                    fileUploadHelp.textContent = 'يمكنك إرفاق ملف (صورة، PDF، أو مستند) ليتم حفظه تلقائياً في Google Drive.';
-                    resetButton();
-                }, 2000);
+                    showAlert('تم إرسال الطلب بنجاح! (محاكاة تجريبية - تأكد من ربط Google Apps Script بشكل صحيح لحفظ البيانات حقيقةً)', 'success');
+                    resetForm();
+                }, 1500);
                 return;
             }
 
-            // الإرسال الفعلي لـ Google Sheets (بصيغة JSON كنص لتفادي CORS في GAS)
             fetch(SCRIPT_URL, {
                 method: 'POST',
                 body: JSON.stringify(payload),
@@ -410,31 +1199,74 @@
                 .then(data => {
                     if (data.result === "success") {
                         showAlert('تم إرسال طلبك ومرفقاتك بنجاح. شكراً لك.', 'success');
-                        form.reset();
-                        notesSection.classList.add('hidden');
-                        if (specificSubjectsSection) specificSubjectsSection.classList.add('hidden');
-                        freezeSection.classList.add('hidden');
-                        fileUploadLabel.innerHTML = 'إرفاق عذر طبي أو مستندات (إجباري) <span class="text-red-500">*</span>';
-                        fileUploadHelp.textContent = 'يمكنك إرفاق ملف (صورة، PDF، أو مستند) ليتم حفظه تلقائياً في Google Drive.';
+                        resetForm();
+                        // تحديث بيانات لوحة التحكم تلقائياً إذا كانت قد حملت مسبقاً
+                        if (dashboardData.length > 0) {
+                            loadDashboardData();
+                        }
                     } else {
                         showAlert('حدث خطأ أثناء الإرسال: ' + (data.error || ''), 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error!', error);
-                    showAlert('حدث خطأ في الاتصال. تأكد من إعداد رابط Google Apps Script بشكل صحيح.', 'error');
+                    showAlert('حدث خطأ في الاتصال. تأكد من إعداد ونشر رابط Google Apps Script بشكل صحيح.', 'error');
                 })
                 .finally(() => {
                     resetButton();
                 });
         }
 
-        // إعادة الزر لشكله الطبيعي
+        // --- منطق تسجيل الدخول وحمايته ---
+        loginForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            loginSubmitBtn.disabled = true;
+            loginLoader.classList.remove('hidden');
+            loginErrorBox.classList.add('hidden');
+
+            const username = loginUsernameInput.value.trim();
+            const password = loginPasswordInput.value.trim();
+
+            setTimeout(() => {
+                const CORRECT_USERNAME = "fcsit@oiu.edu.sa";
+                const CORRECT_PASSWORD = "fcsit2026";
+
+                if (username === CORRECT_USERNAME && password === CORRECT_PASSWORD) {
+                    sessionStorage.setItem('isFcsitLoggedIn', 'true');
+                    loginForm.reset();
+                    switchTab('dashboard');
+                } else {
+                    loginErrorBox.classList.remove('hidden');
+                }
+
+                loginSubmitBtn.disabled = false;
+                loginLoader.classList.add('hidden');
+            }, 800);
+        });
+
+        logoutBtn.addEventListener('click', function () {
+            sessionStorage.removeItem('isFcsitLoggedIn');
+            switchTab('dashboard');
+        });
+
+        function resetForm() {
+            form.reset();
+            notesSection.classList.add('hidden');
+            specificSubjectsSection.classList.add('hidden');
+            freezeSection.classList.add('hidden');
+            fileUploadLabel.innerHTML = 'إرفاق عذر طبي أو مستندات (إجباري) <span class="text-red-500">*</span>';
+            fileUploadHelp.textContent = 'يمكنك إرفاق ملف (صورة، PDF، أو مستند) ليتم حفظه تلقائياً في Google Drive.';
+            fileUploadText.textContent = 'اضغط هنا أو قم بسحب وإفلات الملف هنا';
+            fileUploadText.className = 'mt-2 text-sm text-slate-600 font-medium';
+            resetButton();
+        }
+
         function resetButton() {
             submitBtn.disabled = false;
             submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
             btnText.textContent = 'إرسال الطلب';
-            btnLoader.style.display = 'none';
+            btnLoader.classList.add('hidden');
         }
     </script>
 </body>
